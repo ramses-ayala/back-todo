@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
+
+import { generateToken } from '../../utils/generateToken';
 
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
@@ -17,17 +19,20 @@ const signIn = async(req: Request,res: Response) => {
         }
        });
 
-       if(!user) return res.status(404).json({"data": "User not found"});
+       if(!user) return res.status(404).json({'data': 'User not found'});
 
         const match = await bcrypt.compare(password, user.password);
 
-        match !== true ?
-            res.status(404).json({"data": "Password incorrect"})
-            :
-            res.status(200).json({"data": {"firstName": user.firstName, "lastName": user.lastName, "email": user.email}})
+        if(match !== true){
+            return res.status(404).json({'data': 'Password incorrect'});
+        }
 
-    } catch (error) {
-        console.log('error --> ',error);
+        const token = generateToken(user);
+
+        return res.status(200).json({'data': {'firstName': user.firstName, 'lastName': user.lastName, 'email': user.email, 'token': token}});
+        
+    } catch (e: any) {
+        throw new Error(e.message);
     }
 
 }
