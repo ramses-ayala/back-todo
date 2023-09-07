@@ -16,5 +16,5 @@ app.use(morgan("dev"));
 app.use("/api",routes);
 
 app.listen(app.get("port"), () => {
-    console.log("Server in port : ", app.get("port"));
+    console.log("Server on port : ", app.get("port"));
 });
